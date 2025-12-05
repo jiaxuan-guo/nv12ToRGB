@@ -1,0 +1,12 @@
+# Vulkan NV12 -> NV12 scaler demo (input 640x480 -> output 320x240 by default)
+
+
+This textdoc contains the following files concatenated for convenience:
+
+
+- compute_y.comp // GLSL compute shader to scale Y plane (R8)
+- compute_uv.comp // GLSL compute shader to scale UV plane (RG8)
+- main.cpp // C++ Vulkan host program (build & run instructions below) 
+
+
+---

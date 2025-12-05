@@ -1,0 +1,32 @@
+#version 450
+layout(local_size_x = 16, local_size_y = 16) in;
+
+
+layout(binding = 0, r8) readonly uniform image2D imgY; // input Y
+layout(binding = 1, r8) writeonly uniform image2D imgOutY; // output Y
+
+
+layout(push_constant) uniform PushY {
+int inW;
+int inH;
+int outW;
+int outH;
+} pc;
+
+
+void main() {
+ivec2 outXY = ivec2(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
+if (outXY.x >= pc.outW || outXY.y >= pc.outH) return;
+
+
+// nearest mapping
+int srcX = int(float(outXY.x) * float(pc.inW) / float(pc.outW));
+int srcY = int(float(outXY.y) * float(pc.inH) / float(pc.outH));
+srcX = clamp(srcX, 0, pc.inW - 1);
+srcY = clamp(srcY, 0, pc.inH - 1);
+
+
+vec4 yv = imageLoad(imgY, ivec2(srcX, srcY));
+imageStore(imgOutY, outXY, vec4(yv.r, 0.0, 0.0, 1.0));
+}
+

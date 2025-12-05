@@ -1,0 +1,30 @@
+#version 450
+layout(local_size_x = 16, local_size_y = 16) in;
+
+
+layout(binding = 0, rg8) readonly uniform image2D imgUV; // input UV (U=r, V=g)
+layout(binding = 1, rg8) writeonly uniform image2D imgOutUV; // output UV (U=r, V=g)
+
+
+layout(push_constant) uniform PushUV {
+int inW; // width in UV plane (inW/2)
+int inH; // height in UV plane (inH/2)
+int outW;
+int outH;
+} pc;
+
+
+void main() {
+ivec2 outXY = ivec2(int(gl_GlobalInvocationID.x), int(gl_GlobalInvocationID.y));
+if (outXY.x >= pc.outW || outXY.y >= pc.outH) return;
+
+
+int srcX = int(float(outXY.x) * float(pc.inW) / float(pc.outW));
+int srcY = int(float(outXY.y) * float(pc.inH) / float(pc.outH));
+srcX = clamp(srcX, 0, pc.inW - 1);
+srcY = clamp(srcY, 0, pc.inH - 1);
+
+
+vec4 uv = imageLoad(imgUV, ivec2(srcX, srcY));
+imageStore(imgOutUV, outXY, vec4(uv.r, uv.g, 0.0, 1.0));
+}
